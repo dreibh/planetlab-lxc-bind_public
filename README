@@ -1,0 +1,5 @@
+Use as follows:
+
+LD_PRELOAD=./bind_public.so nc -l 5000
+
+The function of the above command is to listen on port 5000 of one of the public IP addresses of the current host.
