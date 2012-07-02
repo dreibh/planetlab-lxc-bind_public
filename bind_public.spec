@@ -1,4 +1,4 @@
-%define name portforward
+%define name bind_public
 %define version 0.1
 %define taglevel 1
 
