@@ -186,42 +186,41 @@ static void debug( const struct sockaddr* before, struct sockaddr* after ) {
 // if the caller attempted to bind to 0.0.0.0 or ::, then change it to
 // this node's public IP address
 int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
-   
-  int rc = is_addr_any( addr );
-  if( rc > 0 ) {
 
-     // save the original bind() call
-     if( bind_original == NULL ) {
-        void *handle = dlopen( LIBC_PATH, RTLD_LAZY );
-        if (!handle) {
-            fprintf( stderr, "Error loading libc.so.6\n" );
-            fflush( stderr );
-            return -1;
-        }
-        bind_original = dlsym(handle, "bind");
-        if( bind_original == NULL ) {
-            fprintf( stderr, "Error loading socket symbol\n" );
-            fflush( stderr );
-            return -1;
-        }
-     }
+   // save the original bind() call
+   void *handle = dlopen( LIBC_PATH, RTLD_LAZY );
+   if (!handle) {
+      fprintf( stderr, "Error loading libc.so.6\n" );
+      fflush( stderr );
+      return -1;
+   }
+   bind_original = dlsym(handle, "bind");
+   if( bind_original == NULL ) {
+      fprintf( stderr, "Error loading socket symbol\n" );
+      fflush( stderr );
+      return -1;
+   }
 
-     // rewrite this address
-     struct sockaddr_storage new_addr;
-     memset( &new_addr, 0, sizeof(struct sockaddr_storage));
-     
-     if( copy_nonIP_fields( (struct sockaddr*)&new_addr, addr ) != 0 ) {
-        errno = EACCES;
-        rc = -1;
-     }
-     else if( get_public_ip( (struct sockaddr*)&new_addr ) != 0 ) {
-        rc = -1;
-     }
-     else {
-        debug( addr, (struct sockaddr*)&new_addr );
-        rc = bind_original( sockfd, (struct sockaddr*)&new_addr, addrlen );
-     }
-  }
-  
-  return rc;
+   int rc = is_addr_any( addr );
+   if( rc > 0 ) {
+
+      // rewrite this address
+      struct sockaddr_storage new_addr;
+      memset( &new_addr, 0, sizeof(struct sockaddr_storage));
+
+      if( copy_nonIP_fields( (struct sockaddr*)&new_addr, addr ) != 0 ) {
+         errno = EACCES;
+         rc = -1;
+      }
+      else if( get_public_ip( (struct sockaddr*)&new_addr ) != 0 ) {
+         rc = -1;
+      }
+      else {
+         debug( addr, (struct sockaddr*)&new_addr );
+         rc = bind_original( sockfd, (struct sockaddr*)&new_addr, addrlen );
+      }
+   }
+   else {
+      return bind_original( sockfd, addr, addrlen );
+   }
 }
