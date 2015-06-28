@@ -216,7 +216,8 @@ int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
          rc = -1;
       }
       else {
-         debug( addr, (struct sockaddr*)&new_addr );
+         // Un-comment the following line to activate the debug message
+         //debug( addr, (struct sockaddr*)&new_addr );
          rc = bind_original( sockfd, (struct sockaddr*)&new_addr, addrlen );
       }
    }
