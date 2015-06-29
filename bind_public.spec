@@ -1,6 +1,6 @@
 %define name bind_public
 %define version 0.1
-%define taglevel 2
+%define taglevel 3
 
 %define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
 
@@ -39,6 +39,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/planetlab/
 
 %changelog
+* Mon Jun 29 2015 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - bind_public-0.1-3
+- turn off annoying debugging trace
+
 * Mon Nov 26 2012 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - bind_public-0.1-2
 - bug fixes
 
